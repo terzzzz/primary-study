@@ -28,7 +28,7 @@
     .section.active { display: block; }
 
     /* Import Section */
-    textarea { width: 100%; height: 100px; border: 2px solid #ddd; border-radius: 8px; padding: 10px; margin-top: 8px; font-size: 16px; }
+    textarea { width: 100%; height: 120px; border: 2px solid #ddd; border-radius: 8px; padding: 10px; margin-top: 8px; font-size: 16px; }
     
     /* Buttons & Controls */
     .btn { padding: 10px 18px; border: none; border-radius: 8px; background: var(--primary); color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
@@ -44,7 +44,7 @@
     
     /* Exercises Container */
     .exercise-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 12px; line-height: 1.8; font-size: 18px; }
-    .drop-slot { display: inline-block; min-width: 100px; height: 36px; border-bottom: 3px solid var(--primary); margin: 0 5px; vertical-align: middle; text-align: center; font-weight: bold; color: #2b6cb0; cursor: pointer; line-height: 36px; }
+    .drop-slot { display: inline-block; min-width: 110px; height: 36px; border-bottom: 3px solid var(--primary); margin: 0 5px; vertical-align: middle; text-align: center; font-weight: bold; color: #2b6cb0; cursor: pointer; line-height: 36px; padding: 0 8px; }
     .drop-slot.filled { background: #ebf8ff; border-radius: 4px; border-bottom-style: solid; }
     .drop-slot.correct { border-bottom-color: var(--success); color: var(--success); background: #f0fff4; }
     .drop-slot.wrong { border-bottom-color: var(--danger); color: var(--danger); background: #fff5f5; }
@@ -55,9 +55,9 @@
     canvas { width: 100%; height: 100%; cursor: crosshair; }
     .revealed-answer { font-size: 32px; font-weight: bold; color: var(--primary); margin: 15px 0; min-height: 45px; }
 
-    /* Score Modal / Display */
+    /* Score Banner / Word Select Box */
     .score-banner { font-size: 20px; font-weight: bold; text-align: center; margin-top: 15px; padding: 10px; border-radius: 8px; }
-    .word-select-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 15px 0; max-height: 250px; overflow-y: auto; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; }
+    .word-select-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin: 15px 0; max-height: 250px; overflow-y: auto; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; }
     .word-select-list label { font-size: 16px; cursor: pointer; }
   </style>
 </head>
@@ -76,7 +76,7 @@
   <!-- SECTION 1: IMPORT VOCABULARY -->
   <div id="tab-import" class="section active">
     <h2>Import Word Lists</h2>
-    <p>Upload <code>.txt</code> files or paste your vocabulary list below. Separators accepted: Space, Enter, Comma (<code>,</code> / <code>，</code>), or Enumeration stop (<code>、</code>).</p>
+    <p>Upload <code>.txt</code> files or paste your vocabulary list below. Items separated by commas (<code>,</code> / <code>，</code>), enumeration stops (<code>、</code>), or newlines (<code>\n</code>).</p>
 
     <div style="margin-bottom: 20px;">
       <h3>Chinese Vocabulary (中文詞語清單)</h3>
@@ -87,7 +87,7 @@
     <div style="margin-bottom: 20px;">
       <h3>English Vocabulary</h3>
       <input type="file" id="english-file" accept=".txt" onchange="handleFileUpload(event, 'english')" />
-      <textarea id="english-input" placeholder="Example: apple, banana, cat, dog, elephant, friend, garden, happy, island, jump, kangaroo, lemon"></textarea>
+      <textarea id="english-input" placeholder="music room, classroom, tuck shop, library, hall, corridor, garden, computer room, floor, first, second, third, fourth, fifth, sixth, seventh, eighth, ninth, tenth, one, two, three, four, five, six, seven, eight, nine, ten, afraid, kind, nice, cow, snake, dog, teacher, student, help, he, she, it, they, is, are, hello, maths, english"></textarea>
     </div>
 
     <button class="btn btn-success" onclick="saveVocabularies()">Save & Update Lists</button>
@@ -150,11 +150,26 @@
   <div id="tab-english" class="section">
     <h2>English Practice</h2>
     <div class="btn-group">
-      <button class="btn" onclick="showEnglishDictationSetup()">1. Audio Dictation (Relaxed)</button>
-      <button class="btn btn-secondary" onclick="initEnglishBlanks()">2. Fill in the Blanks (Scored)</button>
+      <button class="btn" onclick="showEnglishBlanksSetup()">1. Fill in the Blanks (Scored)</button>
+      <button class="btn btn-secondary" onclick="showEnglishDictationSetup()">2. Audio Dictation (Relaxed)</button>
     </div>
 
-    <!-- Sub-mode A: Relaxed English Audio Dictation -->
+    <!-- Sub-mode A1: English Fill in Blanks Selection -->
+    <div id="en-blanks-setup" style="display:none;">
+      <h3>Select English words (Defaults to last 12 words):</h3>
+      <div id="en-blanks-checkboxes" class="word-select-list"></div>
+      <button class="btn btn-success" onclick="startEnglishBlanks()">▶️ Start Game</button>
+    </div>
+
+    <!-- Sub-mode A2: English Fill in Blanks Playground -->
+    <div id="en-blanks-container" style="display:none;">
+      <div id="en-word-bank" class="word-bank"></div>
+      <div id="en-exercises"></div>
+      <button class="btn btn-success" onclick="checkEnglishBlanks()">Check Answers & Submit Score</button>
+      <div id="en-score" class="score-banner"></div>
+    </div>
+
+    <!-- Sub-mode B: Relaxed English Audio Dictation -->
     <div id="en-dictation-setup" style="display:none;">
       <h3>Select number of words to dictate:</h3>
       <input type="number" id="en-dict-count" value="5" min="1" max="50" style="padding: 8px; font-size: 16px; width: 80px;" />
@@ -172,20 +187,12 @@
         <button class="btn btn-success" onclick="nextEnglishDictationWord()">OK / Next Word</button>
       </div>
     </div>
-
-    <!-- Sub-mode B: Scored English Fill in the Blanks -->
-    <div id="en-blanks-container" style="display:none;">
-      <div id="en-word-bank" class="word-bank"></div>
-      <div id="en-exercises"></div>
-      <button class="btn btn-success" onclick="checkEnglishBlanks()">Check Answers & Submit Score</button>
-      <div id="en-score" class="score-banner"></div>
-    </div>
   </div>
 </div>
 
 <script>
   let chineseList = ["太陽", "月亮", "蘋果", "學校", "朋友", "學習", "老師", "圖書館", "快樂", "勇敢", "小鳥", "花朵", "珍惜", "觀察", "禮貌", "陪伴", "愉快", "鼓勵", "認真"];
-  let englishList = ["apple", "banana", "cat", "dog", "elephant", "friend", "garden", "happy", "island", "jump", "kangaroo", "lemon"];
+  let englishList = ["music room", "classroom", "tuck shop", "library", "hall", "corridor", "garden", "computer room", "floor", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "afraid", "kind", "nice", "cow", "snake", "dog", "teacher", "student", "help", "he", "she", "it", "they", "is", "are", "hello", "maths", "english"];
 
   let selectedWordForDrop = null;
   let currentCnBlankTargets = [];
@@ -205,10 +212,11 @@
     document.getElementById('tab-' + tabId).classList.add('active');
   }
 
+  // Smart Parser: Split by commas, enumeration stops, or newlines, preserving multi-word phrases (e.g. "music room") and trimming trailing punctuation
   function parseWordList(rawText) {
     return rawText
-      .split(/[\s,，、\n]+/)
-      .map(w => w.trim())
+      .split(/[,，、\n]+/)
+      .map(w => w.trim().replace(/[.!?。]+$/, ''))
       .filter(w => w.length > 0);
   }
 
@@ -233,10 +241,10 @@
   }
 
   /* --------------------------------------------------
-     CHINESE DYNAMIC SENTENCE GENERATOR
+     CHINESE DYNAMIC SENTENCE GENERATOR & GAME
   -------------------------------------------------- */
   function generateChineseSentence(phrase) {
-    const primarySentenceTemplates = [
+    const primaryTemplates = [
       `老師在課堂上詳細解釋了「______」的意思，並提醒我們要好好運用。`,
       `這篇課文主要講述了關於______的故事，看完後讓人深受啟發。`,
       `在日常生活中，我們應該學會______，做一個懂事聽話的好孩子。`,
@@ -251,7 +259,7 @@
       `大家都非常認同這個觀點，並明白到了______的重要性。`
     ];
 
-    const template = primarySentenceTemplates[Math.floor(Math.random() * primarySentenceTemplates.length)];
+    const template = primaryTemplates[Math.floor(Math.random() * primaryTemplates.length)];
     return template.replace('______', `<span class="drop-slot" data-ans="${phrase}" onclick="placeSelectedWord(this)"></span>`);
   }
 
@@ -319,33 +327,57 @@
      ENGLISH DYNAMIC SENTENCE GENERATOR & GAME
   -------------------------------------------------- */
   function generateEnglishSentence(word) {
-    const sentencePatterns = [
-      `Yesterday, our teacher told us an exciting story about _____.`,
-      `My little sister was very happy when she saw the _____ in the park.`,
-      `We can read a lot of interesting books about _____ in the library.`,
-      `Do you know why _____ is so important in our daily lives?`,
-      `During the weekend, my family and I learned more about _____.`,
-      `Look at that wonderful _____ over there! It looks amazing.`,
-      `The children were working together to draw a picture of _____.`,
-      `My best friend gave me a book that explains all about _____.`,
-      `In our science class today, we had a great discussion about _____.`,
-      `Everyone in the classroom was surprised to see the _____!`
+    const templates = [
+      `Yesterday, our English teacher told us about _____.`,
+      `My classmate and I like to study about _____ together.`,
+      `We learned an interesting topic about _____ in class today.`,
+      `Can you explain the meaning of _____ to the class?`,
+      `During the lesson, the students wrote a sentence using _____.`,
+      `Everyone was happy to learn more about _____ in the textbook.`,
+      `Our teacher gave us a fun exercise about _____.`,
+      `It is very useful to practice using _____ every day.`
     ];
 
-    const pattern = sentencePatterns[Math.floor(Math.random() * sentencePatterns.length)];
-    return pattern.replace('_____', `<span class="drop-slot" data-ans="${word}" onclick="placeSelectedWord(this)"></span>`);
+    const template = templates[Math.floor(Math.random() * templates.length)];
+    return template.replace('_____', `<span class="drop-slot" data-ans="${word}" onclick="placeSelectedWord(this)"></span>`);
   }
 
-  function initEnglishBlanks() {
+  function showEnglishBlanksSetup() {
     if (englishList.length === 0) return alert("Please import English words first!");
-    
+
+    document.getElementById('en-blanks-container').style.display = 'none';
     document.getElementById('en-dictation-setup').style.display = 'none';
     document.getElementById('en-dictation-play').style.display = 'none';
+    
+    const setup = document.getElementById('en-blanks-setup');
+    setup.style.display = 'block';
+
+    const box = document.getElementById('en-blanks-checkboxes');
+    box.innerHTML = '';
+
+    const totalCount = englishList.length;
+    const last12StartIndex = Math.max(0, totalCount - 12);
+
+    englishList.forEach((word, index) => {
+      const isDefaultChecked = index >= last12StartIndex;
+      const label = document.createElement('label');
+      label.style.display = 'block';
+      label.innerHTML = `<input type="checkbox" value="${word}" ${isDefaultChecked ? 'checked' : ''} /> ${word}`;
+      box.appendChild(label);
+    });
+  }
+
+  function startEnglishBlanks() {
+    const checkedInputs = document.querySelectorAll('#en-blanks-checkboxes input:checked');
+    currentEnBlankTargets = Array.from(checkedInputs).map(cb => cb.value);
+
+    if (currentEnBlankTargets.length === 0) {
+      return alert('Please select at least 1 word!');
+    }
+
+    document.getElementById('en-blanks-setup').style.display = 'none';
     const container = document.getElementById('en-blanks-container');
     container.style.display = 'block';
-
-    const count = Math.min(12, englishList.length);
-    currentEnBlankTargets = shuffle(englishList).slice(0, count);
 
     const wordBank = document.getElementById('en-word-bank');
     wordBank.innerHTML = '';
@@ -359,7 +391,8 @@
 
     const exDiv = document.getElementById('en-exercises');
     exDiv.innerHTML = '';
-    currentEnBlankTargets.forEach((word, idx) => {
+    const exerciseWords = shuffle([...currentEnBlankTargets]);
+    exerciseWords.forEach((word, idx) => {
       const card = document.createElement('div');
       card.className = 'exercise-card';
       card.innerHTML = `${idx + 1}. ${generateEnglishSentence(word)}`;
@@ -505,6 +538,7 @@
   let enDictIndex = 0;
 
   function showEnglishDictationSetup() {
+    document.getElementById('en-blanks-setup').style.display = 'none';
     document.getElementById('en-blanks-container').style.display = 'none';
     document.getElementById('en-dictation-play').style.display = 'none';
     document.getElementById('en-dictation-setup').style.display = 'block';
