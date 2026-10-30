@@ -1,1 +1,5 @@
-
+music room, classroom, tuck shop, library, hall, corridor, garden, computer room, floor,
+first, second, third, fourth, fifth, sixth, seventh, eighth, nineth, tenth,
+one, two, three, four, five, six, seven, eight, nine, ten
+afraid, kind, nice, cow, snake, dog, teacher, student, help, 
+he, she, it, they, is, are, hello, maths, english.
