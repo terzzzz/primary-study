@@ -212,7 +212,6 @@
     document.getElementById('tab-' + tabId).classList.add('active');
   }
 
-  // Smart Parser: Split by commas, enumeration stops, or newlines, preserving multi-word phrases (e.g. "music room") and trimming trailing punctuation
   function parseWordList(rawText) {
     return rawText
       .split(/[,，、\n]+/)
@@ -241,27 +240,25 @@
   }
 
   /* --------------------------------------------------
-     CHINESE DYNAMIC SENTENCE GENERATOR & GAME
+     CHINESE DYNAMIC SENTENCE GENERATOR (UNIQUE SELECTION)
   -------------------------------------------------- */
-  function generateChineseSentence(phrase) {
-    const primaryTemplates = [
-      `老師在課堂上詳細解釋了「______」的意思，並提醒我們要好好運用。`,
-      `這篇課文主要講述了關於______的故事，看完後讓人深受啟發。`,
-      `在日常生活中，我們應該學會______，做一個懂事聽話的好孩子。`,
-      `看著公園裏______的景色，大家的臉上都露出了燦爛的笑容。`,
-      `小明在日記裏記錄了自己對於______的感受與體會。`,
-      `經過老師的耐心指導後，同學們對「______」這個詞語有了更深入的理解。`,
-      `我們在寫作時，如果能適當地運用「______」，文章內容會變得更加豐富。`,
-      `校園的操場上充滿了______的氣氛，大家玩得不亦樂乎。`,
-      `爸爸經常教導我，遇到問題時要表現出______的精神。`,
-      `閱讀這本故事書時，我深深被書中描寫______的段落所吸引。`,
-      `為了準備這次的課堂分享，小華特意收集了許多關於______的資料。`,
-      `大家都非常認同這個觀點，並明白到了______的重要性。`
-    ];
-
-    const template = primaryTemplates[Math.floor(Math.random() * primaryTemplates.length)];
-    return template.replace('______', `<span class="drop-slot" data-ans="${phrase}" onclick="placeSelectedWord(this)"></span>`);
-  }
+  const chineseTemplates = [
+    `老師在課堂上詳細解釋了「______」的意思，並提醒我們要好好運用。`,
+    `這篇課文主要講述了關於______的故事，看完後讓人深受啟發。`,
+    `在日常生活中，我們應該學會______，做一個懂事聽話的好孩子。`,
+    `看著公園裏______的景色，大家的臉上都露出了燦爛的笑容。`,
+    `小明在日記裏記錄了自己對於______的感受與體會。`,
+    `經過老師的耐心指導後，同學們對「______」這個詞語有了更深入的理解。`,
+    `我們在寫作時，如果能適當地運用「______」，文章內容會變得更加豐富。`,
+    `校園的操場上充滿了______的氣氛，大家玩得不亦樂乎。`,
+    `爸爸經常教導我，遇到問題時要表現出______的精神。`,
+    `閱讀這本故事書時，我深深被書中描寫______的段落所吸引。`,
+    `為了準備這次的課堂分享，小華特意收集了許多關於______的資料。`,
+    `大家都非常認同這個觀點，並明白到了______的重要性。`,
+    `今個週末，我們全家一起討論了有關______的話題。`,
+    `這本課外書裏記錄了不少關於______的有趣故事。`,
+    `課堂討論時，同學們紛紛提出自己對______的看法。`
+  ];
 
   function showChineseBlanksSetup() {
     if (chineseList.length === 0) return alert("請先匯入或輸入中文詞語！");
@@ -313,10 +310,15 @@
     const exDiv = document.getElementById('cn-exercises');
     exDiv.innerHTML = '';
     const exerciseWords = shuffle([...currentCnBlankTargets]);
+    const shuffledTemplates = shuffle(chineseTemplates);
+
     exerciseWords.forEach((word, idx) => {
+      const template = shuffledTemplates[idx % shuffledTemplates.length];
+      const sentenceHtml = template.replace('______', `<span class="drop-slot" data-ans="${word}" onclick="placeSelectedWord(this)"></span>`);
+      
       const card = document.createElement('div');
       card.className = 'exercise-card';
-      card.innerHTML = `${idx + 1}. ${generateChineseSentence(word)}`;
+      card.innerHTML = `${idx + 1}. ${sentenceHtml}`;
       exDiv.appendChild(card);
     });
 
@@ -324,23 +326,25 @@
   }
 
   /* --------------------------------------------------
-     ENGLISH DYNAMIC SENTENCE GENERATOR & GAME
+     ENGLISH DYNAMIC SENTENCE GENERATOR (UNIQUE SELECTION)
   -------------------------------------------------- */
-  function generateEnglishSentence(word) {
-    const templates = [
-      `Yesterday, our English teacher told us about _____.`,
-      `My classmate and I like to study about _____ together.`,
-      `We learned an interesting topic about _____ in class today.`,
-      `Can you explain the meaning of _____ to the class?`,
-      `During the lesson, the students wrote a sentence using _____.`,
-      `Everyone was happy to learn more about _____ in the textbook.`,
-      `Our teacher gave us a fun exercise about _____.`,
-      `It is very useful to practice using _____ every day.`
-    ];
-
-    const template = templates[Math.floor(Math.random() * templates.length)];
-    return template.replace('_____', `<span class="drop-slot" data-ans="${word}" onclick="placeSelectedWord(this)"></span>`);
-  }
+  const englishTemplates = [
+    `Yesterday, our English teacher told us an interesting story about _____.`,
+    `My classmate and I like to study about _____ together in the library.`,
+    `We learned a useful lesson about _____ in class today.`,
+    `Can you explain the meaning of _____ to the rest of the class?`,
+    `During the lesson, all the students wrote a sentence using _____.`,
+    `Everyone was happy to learn more about _____ in their textbook.`,
+    `Our teacher gave us a fun worksheet exercise about _____.`,
+    `It is very important to practice using _____ every single day.`,
+    `My friend showed me a book that explains all about _____.`,
+    `Look at the bulletin board! There is a project about _____.`,
+    `In our lesson today, we had a short quiz about _____.`,
+    `The children worked in groups to talk about _____.`,
+    `Do you know how to spell and use _____ correctly?`,
+    `My parents reminded me to remember the meaning of _____.`,
+    `We were excited to read a chapter about _____ this morning.`
+  ];
 
   function showEnglishBlanksSetup() {
     if (englishList.length === 0) return alert("Please import English words first!");
@@ -392,10 +396,15 @@
     const exDiv = document.getElementById('en-exercises');
     exDiv.innerHTML = '';
     const exerciseWords = shuffle([...currentEnBlankTargets]);
+    const shuffledTemplates = shuffle(englishTemplates);
+
     exerciseWords.forEach((word, idx) => {
+      const template = shuffledTemplates[idx % shuffledTemplates.length];
+      const sentenceHtml = template.replace('_____', `<span class="drop-slot" data-ans="${word}" onclick="placeSelectedWord(this)"></span>`);
+
       const card = document.createElement('div');
       card.className = 'exercise-card';
-      card.innerHTML = `${idx + 1}. ${generateEnglishSentence(word)}`;
+      card.innerHTML = `${idx + 1}. ${sentenceHtml}`;
       exDiv.appendChild(card);
     });
 
